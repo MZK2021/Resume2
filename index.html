@@ -69,9 +69,14 @@
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: -1;
-            opacity: 0.2;
+            z-index: -1; /* Keep behind content */
+            opacity: 0.2; /* Always visible but subtle */
             pointer-events: none;
+        }
+        
+        .idle-mode .matrix-bg {
+            opacity: 0.95; /* Almost fully opaque in idle mode */
+            z-index: 5; /* On top during idle mode */
         }
         
         .loading-matrix {
@@ -88,16 +93,17 @@
             max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
-            background: rgba(10, 10, 18, 0.7);
+            background: rgba(10, 10, 18, 0.85); /* More opaque to contrast with matrix bg */
             border-radius: 10px;
             box-shadow: 0 0 20px rgba(0, 255, 65, 0.2);
             position: relative;
             overflow: hidden;
             transition: opacity 0.5s ease;
+            z-index: 1;
         }
         
         .idle-mode .container {
-            opacity: 0.1;
+            opacity: 0.1; /* Very faint in idle mode */
         }
         
         header {
@@ -163,7 +169,7 @@
         }
         
         .grid-item {
-            background: rgba(10, 15, 20, 0.8);
+            background: rgba(10, 15, 20, 0.9); /* More opaque to contrast with matrix bg */
             border: 1px solid #00ff41;
             border-radius: 5px;
             padding: 20px;
@@ -303,25 +309,6 @@
             color: #00cc55;
         }
         
-        .idle-notice {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: #00ff41;
-            font-size: 1.5rem;
-            text-align: center;
-            opacity: 0;
-            transition: opacity 1s ease;
-            pointer-events: none;
-            text-shadow: 0 0 10px #00ff41;
-            z-index: 100;
-        }
-        
-        .idle-mode .idle-notice {
-            opacity: 1;
-        }
-        
         .matrix-char {
             position: absolute;
             color: rgba(0, 255, 65, 0.7);
@@ -372,11 +359,6 @@
             <div class="progress" id="progress"></div>
         </div>
         <canvas id="loading-matrix" class="loading-matrix"></canvas>
-    </div>
-    
-    <div class="idle-notice" id="idle-notice">
-        <div>SYSTEM IDLE</div>
-        <div style="font-size: 1rem; margin-top: 10px;">Interact to resume</div>
     </div>
     
     <canvas id="matrix-bg" class="matrix-bg"></canvas>
@@ -503,7 +485,7 @@
         
         <footer>
             <p>© 2023 Million Kassaye - AI/ML Engineer & Software Developer</p>
-            <p>LIFE IS BEAUTIFUL</p>
+            <p>Designed with &lt;3 using Matrix-inspired AI theme</p>
         </footer>
     </div>
 
@@ -513,7 +495,6 @@
             const loadingScreen = document.getElementById('loading-screen');
             const progressBar = document.getElementById('progress');
             const resumeContainer = document.getElementById('resume-container');
-            const idleNotice = document.getElementById('idle-notice');
             
             // Start the loading matrix animation
             initLoadingMatrix();
@@ -682,7 +663,7 @@
             let idleTime = 0;
             const idleInterval = setInterval(() => {
                 idleTime += 1;
-                if (idleTime > 10) { // 10 seconds
+                if (idleTime > 7) { // 7 seconds
                     document.body.classList.add('idle-mode');
                 }
             }, 1000);
