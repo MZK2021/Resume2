@@ -39,11 +39,12 @@
         }
         
         .loading-text {
-            font-size: 2rem;
+            font-size: 2.5rem;
             color: #00ff41;
             text-align: center;
             margin-bottom: 20px;
             text-shadow: 0 0 10px #00ff41;
+            z-index: 1001;
         }
         
         .progress-bar {
@@ -52,6 +53,7 @@
             background-color: #0a230a;
             border-radius: 5px;
             overflow: hidden;
+            z-index: 1001;
         }
         
         .progress {
@@ -69,6 +71,16 @@
             height: 100%;
             z-index: -1;
             opacity: 0.2;
+            pointer-events: none;
+        }
+        
+        .loading-matrix {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 999;
             pointer-events: none;
         }
         
@@ -310,6 +322,34 @@
             opacity: 1;
         }
         
+        .matrix-char {
+            position: absolute;
+            color: rgba(0, 255, 65, 0.7);
+            font-size: 1.2rem;
+            z-index: 1;
+            pointer-events: none;
+            opacity: 0;
+            text-shadow: 0 0 5px #00ff41;
+            font-family: 'Nyala', 'Abyssinica SIL', 'GF Zemen Unicode', sans-serif;
+        }
+        
+        @keyframes matrixFall {
+            0% {
+                opacity: 0;
+                transform: translateY(-100px) rotate(0deg);
+            }
+            5% {
+                opacity: 1;
+            }
+            95% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(100vh) rotate(360deg);
+            }
+        }
+        
         @media (max-width: 768px) {
             .matrix-grid {
                 grid-template-columns: 1fr;
@@ -327,10 +367,11 @@
 </head>
 <body>
     <div class="loading-screen" id="loading-screen">
-        <div class="loading-text">INITIALIZING MATRIX RESUME SYSTEM...</div>
+        <div class="loading-text">INITIALIZING MILLION KASSAYE...</div>
         <div class="progress-bar">
             <div class="progress" id="progress"></div>
         </div>
+        <canvas id="loading-matrix" class="loading-matrix"></canvas>
     </div>
     
     <div class="idle-notice" id="idle-notice">
@@ -462,7 +503,7 @@
         
         <footer>
             <p>© 2023 Million Kassaye - AI/ML Engineer & Software Developer</p>
-            <p>Designed with &lt;3 using Matrix-inspired AI theme</p>
+            <p>LIFE IS BEAUTIFUL</p>
         </footer>
     </div>
 
@@ -473,6 +514,9 @@
             const progressBar = document.getElementById('progress');
             const resumeContainer = document.getElementById('resume-container');
             const idleNotice = document.getElementById('idle-notice');
+            
+            // Start the loading matrix animation
+            initLoadingMatrix();
             
             // Hide resume content initially
             resumeContainer.style.opacity = '0';
@@ -503,6 +547,58 @@
                 progressBar.style.width = progress + '%';
             }, 200);
         });
+        
+        // Loading screen matrix animation
+        function initLoadingMatrix() {
+            const canvas = document.getElementById('loading-matrix');
+            const ctx = canvas.getContext('2d');
+            
+            function resizeCanvas() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+            
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+            
+            // Amharic characters and Geez numbers
+            const amharicChars = 'ሀሁሂሃሄህሆለሉሊላሌልሎሏሐሑሒሓሔሕሖሗመሙሚማሜምሞሟሠሡሢሣሤሥሦሧረሩሪራሬርሮሯሰሱሲሳሴስሶሷሸሹሺሻሼሽሾሿቀቁቂቃቄቅቆቇቈቊቋቌቍቐቑቒቓቔቕቖቘቚቛቜቝበቡቢባቤብቦቧቨቩቪቫቬቭቮቯተቱቲታቴትቶቷቸቹቺቻቼችቾቿኀኁኂኃኄኅኆኇኈኊኋኌኍነኑኒናኔንኖኗኘኙኚኛኜኝኞኟአኡኢኣኤእኦኧከኩኪካኬክኮኯኰኲኳኴኵኸኹኺኻኼኽኾወዉዊዋዌውዎዏዐዑዒዓዔዕዖዘዙዚዛዜዝዞዟዠዡዢዣዤዥዦዧየዩዪያዬይዮዯደዱዲዳዴድዶዷዸዹዺዻዼዽዾዿጀጁጂጃጄጅጆጇገጉጊጋጌግጎጏጘጙጚጛጜጝጞጟጠጡጢጣጤጥጦጧጨጩጪጫጬጭጮጯጰጱጲጳጴጵጶጷጸጹጺጻጼጽጾጿፀፁፂፃፄፅፆፇፈፉፊፋፌፍፎፏፐፑፒፓፔፕፖፗፘፙፚ';
+            const geezNumbers = '፩፪፫፬፭፮፯፰፱፲፳፴፵፶፷፸፹፺፻';
+            const latinChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$#@%&!?';
+            
+            // Combine all characters for the matrix effect
+            const characters = amharicChars + geezNumbers + latinChars;
+            const fontSize = 16;
+            const columns = canvas.width / fontSize;
+            
+            const drops = [];
+            for (let i = 0; i < columns; i++) {
+                drops[i] = Math.random() * 100;
+            }
+            
+            function drawMatrix() {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                ctx.font = `${fontSize}px 'Nyala', 'Abyssinica SIL', 'GF Zemen Unicode', sans-serif`;
+                
+                for (let i = 0; i < drops.length; i++) {
+                    const text = characters[Math.floor(Math.random() * characters.length)];
+                    const greenValue = Math.floor(120 + Math.random() * 135);
+                    ctx.fillStyle = `rgb(0, ${greenValue}, 65)`;
+                    
+                    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                    
+                    if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                        drops[i] = 0;
+                    }
+                    
+                    drops[i]++;
+                }
+            }
+            
+            const matrixInterval = setInterval(drawMatrix, 33);
+        }
         
         // Matrix rain background effect with Amharic characters and Geez numbers
         function initMatrix() {
