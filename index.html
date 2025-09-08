@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Million Kassaye - AI Resume Matrix</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Courier New', monospace;
+        }
+        
+        body {
+            background-color: #0a0a12;
+            color: #00ff41; /* Matrix green */
+            line-height: 1.6;
+            overflow-x: hidden;
+            position: relative;
+            padding: 20px;
+        }
+        
+        .matrix-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.2;
+            pointer-events: none;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: rgba(10, 10, 18, 0.7);
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header {
+            text-align: center;
+            padding: 30px 0;
+            border-bottom: 1px solid #00ff41;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .glitch {
+            font-size: 3rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            position: relative;
+            text-shadow: 0.05em 0 0 #00ff41, -0.03em -0.04em 0 #ff00c1;
+            animation: glitch 5s infinite;
+            letter-spacing: 2px;
+        }
+        
+        @keyframes glitch {
+            0% { text-shadow: 0.05em 0 0 #00ff41, -0.03em -0.04em 0 #ff00c1; }
+            14% { text-shadow: 0.05em 0 0 #00ff41, -0.03em -0.04em 0 #ff00c1; }
+            15% { text-shadow: -0.05em -0.025em 0 #00ff41, 0.025em 0.035em 0 #ff00c1; }
+            49% { text-shadow: -0.05em -0.025em 0 #00ff41, 0.025em 0.035em 0 #ff00c1; }
+            50% { text-shadow: 0.05em 0.035em 0 #00ff41, 0.03em 0 0 #ff00c1; }
+            99% { text-shadow: 0.05em 0.035em 0 #00ff41, 0.03em 0 0 #ff00c1; }
+            100% { text-shadow: -0.05em 0 0 #00ff41, -0.025em -0.04em 0 #ff00c1; }
+        }
+        
+        .contact-info {
+            margin-top: 10px;
+            font-size: 1.1rem;
+        }
+        
+        .download-btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: rgba(0, 255, 65, 0.1);
+            border: 1px solid #00ff41;
+            border-radius: 5px;
+            color: #00ff41;
+            text-decoration: none;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            z-index: 10;
+            position: relative;
+        }
+        
+        .download-btn:hover {
+            background: rgba(0, 255, 65, 0.3);
+            box-shadow: 0 0 15px rgba(0, 255, 65, 0.5);
+        }
+        
+        .matrix-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .grid-item {
+            background: rgba(10, 15, 20, 0.8);
+            border: 1px solid #00ff41;
+            border-radius: 5px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .grid-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.5);
+        }
+        
+        .grid-item h2 {
+            border-bottom: 1px solid #00ff41;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+        
+        .skill-category {
+            margin-bottom: 20px;
+        }
+        
+        .skill-category h3 {
+            color: #00ff9d;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+        
+        .skill-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .skill-chip {
+            background: rgba(0, 255, 65, 0.1);
+            border: 1px solid #00ff41;
+            border-radius: 20px;
+            padding: 5px 15px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+        
+        .skill-chip:hover {
+            background: rgba(0, 255, 65, 0.3);
+            transform: scale(1.05);
+        }
+        
+        .experience-item {
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        .experience-item h3 {
+            color: #00ff9d;
+            font-size: 1.2rem;
+        }
+        
+        .company {
+            font-weight: bold;
+            color: #ffffff;
+        }
+        
+        .date {
+            color: #00cc55;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+        
+        .responsibilities {
+            list-style-type: none;
+        }
+        
+        .responsibilities li {
+            margin-bottom: 8px;
+            position: relative;
+            padding-left: 20px;
+        }
+        
+        .responsibilities li:before {
+            content: "> ";
+            position: absolute;
+            left: 0;
+            color: #00ff41;
+        }
+        
+        .environment {
+            margin-top: 10px;
+            font-style: italic;
+            color: #00cc55;
+            font-size: 0.9rem;
+        }
+        
+        .terminal {
+            background: rgba(0, 0, 0, 0.9);
+            border: 1px solid #00ff41;
+            border-radius: 5px;
+            padding: 20px;
+            margin-top: 30px;
+            font-family: 'Courier New', monospace;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .terminal-command {
+            color: #00ff41;
+            margin-bottom: 10px;
+        }
+        
+        .terminal-response {
+            color: #ffffff;
+            margin-bottom: 20px;
+        }
+        
+        .cursor {
+            display: inline-block;
+            width: 10px;
+            height: 1.2em;
+            background-color: #00ff41;
+            animation: blink 1s infinite;
+            vertical-align: middle;
+        }
+        
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            border-top: 1px solid #00ff41;
+            font-size: 0.9rem;
+            color: #00cc55;
+        }
+        
+        /* Scramble effect styles */
+        .scramble-text {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .scramble-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 65, 0.2), transparent);
+            animation: scramble 3s infinite;
+            pointer-events: none;
+            z-index: 5;
+        }
+        
+        @keyframes scramble {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        
+        /* Fly-in elements */
+        .fly-in {
+            position: absolute;
+            color: rgba(0, 255, 65, 0.7);
+            font-size: 1.2rem;
+            z-index: 1;
+            pointer-events: none;
+            opacity: 0;
+            text-shadow: 0 0 5px #00ff41;
+        }
+        
+        @keyframes flyIn {
+            0% {
+                opacity: 0;
+                transform: translateY(100px) rotate(0deg);
+            }
+            20% {
+                opacity: 1;
+            }
+            80% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-100px) rotate(360deg);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .matrix-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .glitch {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="matrix-bg" class="matrix-bg"></canvas>
+    
+    <div class="container">
+        <header>
+            <h1 class="glitch">MILLION KASSAYE</h1>
+            <div class="contact-info">
+                DALLAS, TX | (702) 720-5904 | Kassayemillion03@gmail.com
+            </div>
+            <a href="#" class="download-btn" id="download-btn">
+                <i class="fas fa-download"></i> Download Resume
+            </a>
+        </header>
+        
+        <div class="matrix-grid">
+            <div class="grid-item">
+                <div class="scramble-text">
+                    <h2>PROFILE</h2>
+                    <div class="scramble-overlay"></div>
+                </div>
+                <p>AI/ML Engineer, AI Developer, AI Researcher with 8+ years of experience in designing, developing, and deploying scalable software and AI solutions.</p>
+                <ul class="responsibilities">
+                    <li>Strong expertise in Python data science stack (Pandas, NumPy, Scikit-learn)</li>
+                    <li>Java, React, and cloud-native architectures</li>
+                    <li>Machine Learning, NLP, and MLOps pipelines</li>
+                    <li>Building production-grade systems across enterprise and research environments</li>
+                </ul>
+            </div>
+            
+            <div class="grid-item">
+                <div class="scramble-text">
+                    <h2>TECHNICAL SKILLS</h2>
+                    <div class="scramble-overlay"></div>
+                </div>
+                <div class="skill-category">
+                    <h3>AI / Machine Learning</h3>
+                    <div class="skill-list">
+                        <span class="skill-chip">BERT</span>
+                        <span class="skill-chip">Hugging Face</span>
+                        <span class="skill-chip">TensorFlow</span>
+                        <span class="skill-chip">PyTorch</span>
+                        <span class="skill-chip">NLTK</span>
+                        <span class="skill-chip">Scikit-learn</span>
+                        <span class="skill-chip">MLflow</span>
+                        <span class="skill-chip">Vertex AI</span>
+                        <span class="skill-chip">Kubeflow</span>
+                        <span class="skill-chip">NLP</span>
+                    </div>
+                </div>
+                
+                <div class="skill-category">
+                    <h3>Front End</h3>
+                    <div class="skill-list">
+                        <span class="skill-chip">React</span>
+                        <span class="skill-chip">Redux</span>
+                        <span class="skill-chip">Angular</span>
+                        <span class="skill-chip">TypeScript</span>
+                        <span class="skill-chip">HTML5</span>
+                        <span class="skill-chip">CSS3</span>
+                    </div>
+                </div>
+                
+                <div class="skill-category">
+                    <h3>Back End & Cloud</h3>
+                    <div class="skill-list">
+                        <span class="skill-chip">Java</span>
+                        <span class="skill-chip">Spring Boot</span>
+                        <span class="skill-chip">Node.js</span>
+                        <span class="skill-chip">AWS</span>
+                        <span class="skill-chip">GCP</span>
+                        <span class="skill-chip">Docker</span>
+                        <span class="skill-chip">Kubernetes</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="grid-item">
+            <div class="scramble-text">
+                <h2>PROFESSIONAL EXPERIENCE</h2>
+                <div class="scramble-overlay"></div>
+            </div>
+            
+            <div class="experience-item">
+                <h3><span class="company">HABESHA PROS</span> - <span>Machine Learning Engineer</span></h3>
+                <div class="date">SEP 2024 - PRESENT | Dallas, TX</div>
+                <ul class="responsibilities">
+                    <li>Leading research on "Amharic and Amharic-English Political Sentiment Analysis of YouTube Comments using Semantic Deep Learning"</li>
+                    <li>Designed scalable data pipelines with YouTube Data API v3 and NLTK</li>
+                    <li>Built and fine-tuned BERT-based NLP models with Hugging Face Transformers</li>
+                    <li>Implemented Kubeflow Pipelines on GCP for end-to-end MLOps</li>
+                </ul>
+                <div class="environment">Environment: Python, TensorFlow, PyTorch, Hugging Face, Kubeflow, Vertex AI, MLflow, NLTK, GCP</div>
+            </div>
+            
+            <div class="experience-item">
+                <h3><span class="company">HOMEDEPOT</span> - <span>Software Engineer</span></h3>
+                <div class="date">MAY 2022 - JULY 2024 | Atlanta, GA</div>
+                <ul class="responsibilities">
+                    <li>Developed scalable React micro-frontends for credit card management</li>
+                    <li>Designed and integrated REST APIs with Spring Boot for Citi Bank systems</li>
+                    <li>Built financial service modules including Prequal and account snapshot features</li>
+                </ul>
+                <div class="environment">Environment: Java, JavaScript, TypeScript, React, Redux, Jenkins</div>
+            </div>
+            
+            <div class="experience-item">
+                <h3><span class="company">INDEED</span> - <span>Front End Developer</span></h3>
+                <div class="date">SEP 2020 - APR 2022 | Seattle, WA</div>
+                <ul class="responsibilities">
+                    <li>Built internal platform RAVEN using React/Redux for email campaign management</li>
+                    <li>Designed drag-and-drop interfaces and AG Grid components</li>
+                    <li>Integrated Spark Post API for bulk email campaigns</li>
+                </ul>
+            </div>
+            
+            <div class="experience-item">
+                <h3><span class="company">JCPENNEY</span> - <span>Full Stack Developer</span></h3>
+                <div class="date">MAY 2018 - AUG 2020 | Plano, TX</div>
+                <ul class="responsibilities">
+                    <li>Developed clean and reusable code using HTML5, CSS, Bootstrap, Node.js, React.js</li>
+                    <li>Built highly engaging and interactive interfaces for great user experience</li>
+                    <li>Utilized CI/CD Pipeline tools for code quality and security standards</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="terminal">
+            <div class="terminal-command">> python analyze_resume.py --candidate="Million Kassaye"</div>
+            <div class="terminal-response" id="terminal-text"></div>
+        </div>
+        
+        <footer>
+            <p>© 2023 Million Kassaye - AI/ML Engineer & Software Developer</p>
+            <p>Designed with &lt;3 using Matrix-inspired AI theme</p>
+        </footer>
+    </div>
+
+    <script>
+        // Matrix rain background effect with Amharic characters and Geez numbers
+        const canvas = document.getElementById('matrix-bg');
+        const ctx = canvas.getContext('2d');
+        
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+        
+        // Amharic characters and Geez numbers
+        const amharicChars = 'ሀሁሂሃሄህሆለሉሊላሌልሎሏሐሑሒሓሔሕሖሗመሙሚማሜምሞሟሠሡሢሣሤሥሦሧረሩሪራሬርሮሯሰሱሲሳሴስሶሷሸሹሺሻሼሽሾሿቀቁቂቃቄቅቆቇቈቊቋቌቍቐቑቒቓቔቕቖቘቚቛቜቝበቡቢባቤብቦቧቨቩቪቫቬቭቮቯተቱቲታቴትቶቷቸቹቺቻቼችቾቿኀኁኂኃኄኅኆኇኈኊኋኌኍነኑኒናኔንኖኗኘኙኚኛኜኝኞኟአኡኢኣኤእኦኧከኩኪካኬክኮኯኰኲኳኴኵኸኹኺኻኼኽኾወዉዊዋዌውዎዏዐዑዒዓዔዕዖዘዙዚዛዜዝዞዟዠዡዢዣዤዥዦዧየዩዪያዬይዮዯደዱዲዳዴድዶዷዸዹዺዻዼዽዾዿጀጁጂጃጄጅጆጇገጉጊጋጌግጎጏጘጙጚጛጜጝጞጟጠጡጢጣጤጥጦጧጨጩጪጫጬጭጮጯጰጱጲጳጴጵጶጷጸጹጺጻጼጽጾጿፀፁፂፃፄፅፆፇፈፉፊፋፌፍፎፏፐፑፒፓፔፕፖፗፘፙፚ';
+        const geezNumbers = '፩፪፫፬፭፮፯፰፱፲፳፴፵፶፷፸፹፺፻';
+        const latinChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$#@%&!?';
+        
+        // Combine all characters for the matrix effect
+        const characters = amharicChars + geezNumbers + latinChars;
+        const fontSize = 16;
+        const columns = canvas.width / fontSize;
+        
+        const drops = [];
+        for (let i = 0; i < columns; i++) {
+            drops[i] = Math.random() * 100;
+        }
+        
+        function drawMatrix() {
+            ctx.fillStyle = 'rgba(10, 10, 18, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.font = `${fontSize}px 'Nyala', 'Abyssinica SIL', 'GF Zemen Unicode', sans-serif`;
+            
+            for (let i = 0; i < drops.length; i++) {
+                const text = characters[Math.floor(Math.random() * characters.length)];
+                const greenValue = Math.floor(120 + Math.random() * 135);
+                ctx.fillStyle = `rgb(0, ${greenValue}, 65)`;
+                
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                
+                drops[i]++;
+            }
+        }
+        
+        setInterval(drawMatrix, 33);
+        
+        // Terminal typing effect
+        const terminalText = document.getElementById('terminal-text');
+        const fullText = "[+] AI/ML Engineer with 8+ years experience\n[+] Specialties: Python, Java, React, Cloud-Native Architectures\n[+] NLP, Transformers, MLOps, Kubeflow, Vertex AI\n[+] Strong full-stack development background\n\n> Ready to deploy innovative AI solutions.";
+        let index = 0;
+        
+        function typeTerminalText() {
+            if (index <= fullText.length) {
+                terminalText.innerHTML = fullText.substring(0, index).replace(/\n/g, '<br>');
+                index++;
+                setTimeout(typeTerminalText, 40);
+            } else {
+                terminalText.innerHTML = fullText.replace(/\n/g, '<br>');
+            }
+        }
+        
+        typeTerminalText();
+        
+        // Download button functionality
+        document.getElementById("download-btn").addEventListener("click", function() {
+            const link = document.createElement("a");
+            link.href = "Million_Kassaye_Resume_Updated1.docx";
+            link.download = "Million_Kassaye_Resume_Updated1.docx";
+            link.click();
+        });
+        
+        // Create fly-in elements from background
+        function createFlyIn() {
+            const flyIn = document.createElement('div');
+            flyIn.className = 'fly-in';
+            
+            // Randomly select text content
+            const texts = [
+                'Python', 'TensorFlow', 'PyTorch', 'NLP', 'MLOps', 
+                'React', 'Java', 'AWS', 'GCP', 'Docker',
+                'Kubernetes', 'BERT', 'Hugging Face', 'AI', 'ML',
+                'Spring Boot', 'TypeScript', 'Kubeflow', 'Vertex AI'
+            ];
+            flyIn.textContent = texts[Math.floor(Math.random() * texts.length)];
+            
+            // Random position
+            flyIn.style.left = Math.random() * 90 + 'vw';
+            flyIn.style.top = Math.random() * 90 + 'vh';
+            
+            // Random animation duration
+            const duration = 5 + Math.random() * 10;
+            flyIn.style.animation = `flyIn ${duration}s linear`;
+            
+            document.body.appendChild(flyIn);
+            
+            // Remove element after animation completes
+            setTimeout(() => {
+                flyIn.remove();
+            }, duration * 1000);
+        }
+        
+        // Create fly-in elements periodically
+        setInterval(createFlyIn, 1000);
+        
+        // Create initial fly-in elements
+        for (let i = 0; i < 5; i++) {
+            setTimeout(createFlyIn, i * 500);
+        }
+    </script>
+</body>
+</html>
