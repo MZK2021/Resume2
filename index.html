@@ -20,6 +20,45 @@
             overflow-x: hidden;
             position: relative;
             padding: 20px;
+            transition: opacity 0.5s ease;
+        }
+        
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 1000;
+            transition: opacity 1s ease;
+        }
+        
+        .loading-text {
+            font-size: 2rem;
+            color: #00ff41;
+            text-align: center;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px #00ff41;
+        }
+        
+        .progress-bar {
+            width: 300px;
+            height: 10px;
+            background-color: #0a230a;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            width: 0%;
+            background-color: #00ff41;
+            transition: width 0.3s ease;
         }
         
         .matrix-bg {
@@ -42,6 +81,11 @@
             box-shadow: 0 0 20px rgba(0, 255, 65, 0.2);
             position: relative;
             overflow: hidden;
+            transition: opacity 0.5s ease;
+        }
+        
+        .idle-mode .container {
+            opacity: 0.1;
         }
         
         header {
@@ -247,55 +291,23 @@
             color: #00cc55;
         }
         
-        /* Scramble effect styles */
-        .scramble-text {
-            position: relative;
-            display: inline-block;
-        }
-        
-        .scramble-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(0, 255, 65, 0.2), transparent);
-            animation: scramble 3s infinite;
-            pointer-events: none;
-            z-index: 5;
-        }
-        
-        @keyframes scramble {
-            0% { left: -100%; }
-            100% { left: 100%; }
-        }
-        
-        /* Fly-in elements */
-        .fly-in {
-            position: absolute;
-            color: rgba(0, 255, 65, 0.7);
-            font-size: 1.2rem;
-            z-index: 1;
-            pointer-events: none;
+        .idle-notice {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #00ff41;
+            font-size: 1.5rem;
+            text-align: center;
             opacity: 0;
-            text-shadow: 0 0 5px #00ff41;
+            transition: opacity 1s ease;
+            pointer-events: none;
+            text-shadow: 0 0 10px #00ff41;
+            z-index: 100;
         }
         
-        @keyframes flyIn {
-            0% {
-                opacity: 0;
-                transform: translateY(100px) rotate(0deg);
-            }
-            20% {
-                opacity: 1;
-            }
-            80% {
-                opacity: 1;
-            }
-            100% {
-                opacity: 0;
-                transform: translateY(-100px) rotate(360deg);
-            }
+        .idle-mode .idle-notice {
+            opacity: 1;
         }
         
         @media (max-width: 768px) {
@@ -306,13 +318,29 @@
             .glitch {
                 font-size: 2rem;
             }
+            
+            .loading-text {
+                font-size: 1.5rem;
+            }
         }
     </style>
 </head>
 <body>
+    <div class="loading-screen" id="loading-screen">
+        <div class="loading-text">INITIALIZING MATRIX RESUME SYSTEM...</div>
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
+    </div>
+    
+    <div class="idle-notice" id="idle-notice">
+        <div>SYSTEM IDLE</div>
+        <div style="font-size: 1rem; margin-top: 10px;">Interact to resume</div>
+    </div>
+    
     <canvas id="matrix-bg" class="matrix-bg"></canvas>
     
-    <div class="container">
+    <div class="container" id="resume-container">
         <header>
             <h1 class="glitch">MILLION KASSAYE</h1>
             <div class="contact-info">
@@ -325,10 +353,7 @@
         
         <div class="matrix-grid">
             <div class="grid-item">
-                <div class="scramble-text">
-                    <h2>PROFILE</h2>
-                    <div class="scramble-overlay"></div>
-                </div>
+                <h2>PROFILE</h2>
                 <p>AI/ML Engineer, AI Developer, AI Researcher with 8+ years of experience in designing, developing, and deploying scalable software and AI solutions.</p>
                 <ul class="responsibilities">
                     <li>Strong expertise in Python data science stack (Pandas, NumPy, Scikit-learn)</li>
@@ -339,10 +364,7 @@
             </div>
             
             <div class="grid-item">
-                <div class="scramble-text">
-                    <h2>TECHNICAL SKILLS</h2>
-                    <div class="scramble-overlay"></div>
-                </div>
+                <h2>TECHNICAL SKILLS</h2>
                 <div class="skill-category">
                     <h3>AI / Machine Learning</h3>
                     <div class="skill-list">
@@ -387,10 +409,7 @@
         </div>
         
         <div class="grid-item">
-            <div class="scramble-text">
-                <h2>PROFESSIONAL EXPERIENCE</h2>
-                <div class="scramble-overlay"></div>
-            </div>
+            <h2>PROFESSIONAL EXPERIENCE</h2>
             
             <div class="experience-item">
                 <h3><span class="company">HABESHA PROS</span> - <span>Machine Learning Engineer</span></h3>
@@ -448,117 +467,142 @@
     </div>
 
     <script>
-        // Matrix rain background effect with Amharic characters and Geez numbers
-        const canvas = document.getElementById('matrix-bg');
-        const ctx = canvas.getContext('2d');
-        
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-        
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
-        
-        // Amharic characters and Geez numbers
-        const amharicChars = 'ሀሁሂሃሄህሆለሉሊላሌልሎሏሐሑሒሓሔሕሖሗመሙሚማሜምሞሟሠሡሢሣሤሥሦሧረሩሪራሬርሮሯሰሱሲሳሴስሶሷሸሹሺሻሼሽሾሿቀቁቂቃቄቅቆቇቈቊቋቌቍቐቑቒቓቔቕቖቘቚቛቜቝበቡቢባቤብቦቧቨቩቪቫቬቭቮቯተቱቲታቴትቶቷቸቹቺቻቼችቾቿኀኁኂኃኄኅኆኇኈኊኋኌኍነኑኒናኔንኖኗኘኙኚኛኜኝኞኟአኡኢኣኤእኦኧከኩኪካኬክኮኯኰኲኳኴኵኸኹኺኻኼኽኾወዉዊዋዌውዎዏዐዑዒዓዔዕዖዘዙዚዛዜዝዞዟዠዡዢዣዤዥዦዧየዩዪያዬይዮዯደዱዲዳዴድዶዷዸዹዺዻዼዽዾዿጀጁጂጃጄጅጆጇገጉጊጋጌግጎጏጘጙጚጛጜጝጞጟጠጡጢጣጤጥጦጧጨጩጪጫጬጭጮጯጰጱጲጳጴጵጶጷጸጹጺጻጼጽጾጿፀፁፂፃፄፅፆፇፈፉፊፋፌፍፎፏፐፑፒፓፔፕፖፗፘፙፚ';
-        const geezNumbers = '፩፪፫፬፭፮፯፰፱፲፳፴፵፶፷፸፹፺፻';
-        const latinChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$#@%&!?';
-        
-        // Combine all characters for the matrix effect
-        const characters = amharicChars + geezNumbers + latinChars;
-        const fontSize = 16;
-        const columns = canvas.width / fontSize;
-        
-        const drops = [];
-        for (let i = 0; i < columns; i++) {
-            drops[i] = Math.random() * 100;
-        }
-        
-        function drawMatrix() {
-            ctx.fillStyle = 'rgba(10, 10, 18, 0.05)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        // Initial loading sequence
+        document.addEventListener('DOMContentLoaded', function() {
+            const loadingScreen = document.getElementById('loading-screen');
+            const progressBar = document.getElementById('progress');
+            const resumeContainer = document.getElementById('resume-container');
+            const idleNotice = document.getElementById('idle-notice');
             
-            ctx.font = `${fontSize}px 'Nyala', 'Abyssinica SIL', 'GF Zemen Unicode', sans-serif`;
+            // Hide resume content initially
+            resumeContainer.style.opacity = '0';
             
-            for (let i = 0; i < drops.length; i++) {
-                const text = characters[Math.floor(Math.random() * characters.length)];
-                const greenValue = Math.floor(120 + Math.random() * 135);
-                ctx.fillStyle = `rgb(0, ${greenValue}, 65)`;
-                
-                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-                
-                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-                    drops[i] = 0;
+            // Simulate loading progress
+            let progress = 0;
+            const loadingInterval = setInterval(() => {
+                progress += Math.random() * 10;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(loadingInterval);
+                    
+                    // Complete loading
+                    setTimeout(() => {
+                        loadingScreen.style.opacity = '0';
+                        setTimeout(() => {
+                            loadingScreen.style.display = 'none';
+                            resumeContainer.style.opacity = '1';
+                            
+                            // Start the matrix background
+                            initMatrix();
+                            
+                            // Start idle detection
+                            startIdleDetection();
+                        }, 500);
+                    }, 500);
                 }
-                
-                drops[i]++;
-            }
-        }
-        
-        setInterval(drawMatrix, 33);
-        
-        // Terminal typing effect
-        const terminalText = document.getElementById('terminal-text');
-        const fullText = "[+] AI/ML Engineer with 8+ years experience\n[+] Specialties: Python, Java, React, Cloud-Native Architectures\n[+] NLP, Transformers, MLOps, Kubeflow, Vertex AI\n[+] Strong full-stack development background\n\n> Ready to deploy innovative AI solutions.";
-        let index = 0;
-        
-        function typeTerminalText() {
-            if (index <= fullText.length) {
-                terminalText.innerHTML = fullText.substring(0, index).replace(/\n/g, '<br>');
-                index++;
-                setTimeout(typeTerminalText, 40);
-            } else {
-                terminalText.innerHTML = fullText.replace(/\n/g, '<br>');
-            }
-        }
-        
-        typeTerminalText();
-        
-        // Download button functionality
-        document.getElementById("download-btn").addEventListener("click", function() {
-            const link = document.createElement("a");
-            link.href = "Million_Kassaye_Resume_Updated1.docx";
-            link.download = "Million_Kassaye_Resume_Updated1.docx";
-            link.click();
+                progressBar.style.width = progress + '%';
+            }, 200);
         });
         
-        // Create fly-in elements from background
-        function createFlyIn() {
-            const flyIn = document.createElement('div');
-            flyIn.className = 'fly-in';
+        // Matrix rain background effect with Amharic characters and Geez numbers
+        function initMatrix() {
+            const canvas = document.getElementById('matrix-bg');
+            const ctx = canvas.getContext('2d');
             
-            // Randomly select text content
-            const texts = [
-                'Python', 'TensorFlow', 'PyTorch', 'NLP', 'MLOps', 
-                'React', 'Java', 'AWS', 'GCP', 'Docker',
-                'Kubernetes', 'BERT', 'Hugging Face', 'AI', 'ML',
-                'Spring Boot', 'TypeScript', 'Kubeflow', 'Vertex AI'
-            ];
-            flyIn.textContent = texts[Math.floor(Math.random() * texts.length)];
+            function resizeCanvas() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
             
-            // Random position
-            flyIn.style.left = Math.random() * 90 + 'vw';
-            flyIn.style.top = Math.random() * 90 + 'vh';
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
             
-            // Random animation duration
-            const duration = 5 + Math.random() * 10;
-            flyIn.style.animation = `flyIn ${duration}s linear`;
+            // Amharic characters and Geez numbers
+            const amharicChars = 'ሀሁሂሃሄህሆለሉሊላሌልሎሏሐሑሒሓሔሕሖሗመሙሚማሜምሞሟሠሡሢሣሤሥሦሧረሩሪራሬርሮሯሰሱሲሳሴስሶሷሸሹሺሻሼሽሾሿቀቁቂቃቄቅቆቇቈቊቋቌቍቐቑቒቓቔቕቖቘቚቛቜቝበቡቢባቤብቦቧቨቩቪቫቬቭቮቯተቱቲታቴትቶቷቸቹቺቻቼችቾቿኀኁኂኃኄኅኆኇኈኊኋኌኍነኑኒናኔንኖኗኘኙኚኛኜኝኞኟአኡኢኣኤእኦኧከኩኪካኬክኮኯኰኲኳኴኵኸኹኺኻኼኽኾወዉዊዋዌውዎዏዐዑዒዓዔዕዖዘዙዚዛዜዝዞዟዠዡዢዣዤዥዦዧየዩዪያዬይዮዯደዱዲዳዴድዶዷዸዹዺዻዼዽዾዿጀጁጂጃጄጅጆጇገጉጊጋጌግጎጏጘጙጚጛጜጝጞጟጠጡጢጣጤጥጦጧጨጩጪጫጬጭጮጯጰጱጲጳጴጵጶጷጸጹጺጻጼጽጾጿፀፁፂፃፄፅፆፇፈፉፊፋፌፍፎፏፐፑፒፓፔፕፖፗፘፙፚ';
+            const geezNumbers = '፩፪፫፬፭፮፯፰፱፲፳፴፵፶፷፸፹፺፻';
+            const latinChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$#@%&!?';
             
-            document.body.appendChild(flyIn);
+            // Combine all characters for the matrix effect
+            const characters = amharicChars + geezNumbers + latinChars;
+            const fontSize = 16;
+            const columns = canvas.width / fontSize;
             
-            // Remove element after animation completes
-            setTimeout(() => {
-                flyIn.remove();
-            }, duration * 1000);
+            const drops = [];
+            for (let i = 0; i < columns; i++) {
+                drops[i] = Math.random() * 100;
+            }
+            
+            function drawMatrix() {
+                ctx.fillStyle = 'rgba(10, 10, 18, 0.05)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                ctx.font = `${fontSize}px 'Nyala', 'Abyssinica SIL', 'GF Zemen Unicode', sans-serif`;
+                
+                for (let i = 0; i < drops.length; i++) {
+                    const text = characters[Math.floor(Math.random() * characters.length)];
+                    const greenValue = Math.floor(120 + Math.random() * 135);
+                    ctx.fillStyle = `rgb(0, ${greenValue}, 65)`;
+                    
+                    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                    
+                    if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                        drops[i] = 0;
+                    }
+                    
+                    drops[i]++;
+                }
+            }
+            
+            const matrixInterval = setInterval(drawMatrix, 33);
+            
+            // Terminal typing effect
+            const terminalText = document.getElementById('terminal-text');
+            const fullText = "[+] AI/ML Engineer with 8+ years experience\n[+] Specialties: Python, Java, React, Cloud-Native Architectures\n[+] NLP, Transformers, MLOps, Kubeflow, Vertex AI\n[+] Strong full-stack development background\n\n> Ready to deploy innovative AI solutions.";
+            let index = 0;
+            
+            function typeTerminalText() {
+                if (index <= fullText.length) {
+                    terminalText.innerHTML = fullText.substring(0, index).replace(/\n/g, '<br>');
+                    index++;
+                    setTimeout(typeTerminalText, 40);
+                } else {
+                    terminalText.innerHTML = fullText.replace(/\n/g, '<br>');
+                }
+            }
+            
+            typeTerminalText();
+            
+            // Download button functionality
+            document.getElementById("download-btn").addEventListener("click", function() {
+                const link = document.createElement("a");
+                link.href = "Million_Kassaye_Resume_Updated1.docx";
+                link.download = "Million_Kassaye_Resume_Updated1.docx";
+                link.click();
+            });
         }
         
-        // Create fly-in elements periodically
-        setInterval(createFlyIn, 1000);
-        
-        // Create initial fly-in elements
-        for (let i = 0; i < 5; i++) {
-            setTimeout(createFlyIn, i * 500);
+        // Idle mode functionality
+        function startIdleDetection() {
+            let idleTime = 0;
+            const idleInterval = setInterval(() => {
+                idleTime += 1;
+                if (idleTime > 10) { // 10 seconds
+                    document.body.classList.add('idle-mode');
+                }
+            }, 1000);
+            
+            // Reset idle time on interaction
+            const resetIdleTime = () => {
+                idleTime = 0;
+                document.body.classList.remove('idle-mode');
+            };
+            
+            // Events that reset the idle timer
+            document.addEventListener('mousemove', resetIdleTime);
+            document.addEventListener('keypress', resetIdleTime);
+            document.addEventListener('touchstart', resetIdleTime);
+            document.addEventListener('scroll', resetIdleTime);
+            document.addEventListener('click', resetIdleTime);
         }
     </script>
 </body>
